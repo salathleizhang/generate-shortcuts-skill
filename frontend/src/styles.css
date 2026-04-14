@@ -137,7 +137,7 @@ textarea {
 }
 
 .prompt-field input {
-  min-height: 66px;
+  height: 66px;
   border-color: #ececec;
   border-radius: 999px;
   background: #fff;
@@ -151,7 +151,7 @@ textarea {
 }
 
 .target-field select {
-  min-height: 66px;
+  height: 66px;
   border-color: #ececec;
   border-radius: 999px;
   background: #fff;
@@ -161,7 +161,7 @@ textarea {
 }
 
 .search-row button {
-  min-height: 66px;
+  height: 66px;
   white-space: nowrap;
   padding-inline: 30px;
 }
