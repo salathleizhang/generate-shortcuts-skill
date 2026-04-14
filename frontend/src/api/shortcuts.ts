@@ -9,7 +9,10 @@ export type GenerateShortcutRequest = {
 export type GenerateShortcutResponse = {
   job_id: string;
   status: "ready";
+  name: string;
   download_url: string;
+  requirements_url: string;
+  context_url: string;
   signed: boolean;
   message: string;
 };
@@ -26,7 +29,7 @@ export async function generateShortcut(
   });
 
   if (!response.ok) {
-    const detail = await response.text();
+    const detail = await readErrorDetail(response);
     throw new Error(detail || `Request failed with status ${response.status}`);
   }
 
@@ -39,4 +42,22 @@ export function getDownloadUrl(path: string): string {
   }
 
   return `${API_BASE_URL}${path}`;
+}
+
+async function readErrorDetail(response: Response): Promise<string> {
+  const text = await response.text();
+  if (!text) {
+    return "";
+  }
+
+  try {
+    const body = JSON.parse(text) as { detail?: unknown };
+    if (typeof body.detail === "string") {
+      return body.detail;
+    }
+  } catch {
+    return text;
+  }
+
+  return text;
 }

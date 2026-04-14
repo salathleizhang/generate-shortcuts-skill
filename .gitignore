@@ -12,6 +12,8 @@ __pycache__/
 # Local config
 .env
 .env.*
+!.env.example
+!backend/.env.example
 
 # macOS
 .DS_Store

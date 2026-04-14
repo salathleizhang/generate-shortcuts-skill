@@ -6,7 +6,7 @@ const examplePrompt =
 
 function App() {
   const [prompt, setPrompt] = useState(examplePrompt);
-  const [name, setName] = useState("Greeting Shortcut");
+  const [name, setName] = useState("");
   const [target, setTarget] = useState<"macOS" | "iOS">("macOS");
   const [result, setResult] = useState<GenerateShortcutResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,16 +35,20 @@ function App() {
         <h1>Describe a Shortcut. Download a signed `.shortcut` file.</h1>
         <p className="lede">
           This local demo uses a Vite + React frontend and a FastAPI backend running on your Mac.
-          The backend generates a basic Shortcut plist, signs it with macOS Shortcuts, and returns a
-          downloadable file.
+          The backend calls Gemini to generate a Shortcut plist, signs it with macOS Shortcuts, and
+          returns a downloadable file.
         </p>
       </section>
 
       <section className="panel">
         <form onSubmit={handleSubmit} className="form">
           <label>
-            Shortcut name
-            <input value={name} onChange={(event) => setName(event.target.value)} />
+            Shortcut name <span>optional</span>
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Leave blank to let Gemini name it"
+            />
           </label>
 
           <label>
@@ -60,7 +64,7 @@ function App() {
             <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} rows={8} />
           </label>
 
-          <button disabled={isLoading || !prompt.trim() || !name.trim()}>
+          <button disabled={isLoading || !prompt.trim()}>
             {isLoading ? "Generating..." : "Generate Shortcut"}
           </button>
         </form>
@@ -69,7 +73,8 @@ function App() {
           <h2>Demo pipeline</h2>
           <ol>
             <li>React sends the prompt to FastAPI.</li>
-            <li>FastAPI builds a minimal Shortcut plist.</li>
+            <li>Gemini drafts a requirements document from the skill docs.</li>
+            <li>Gemini generates Shortcut JSON from that document.</li>
             <li>The plist is validated and written to a temp folder.</li>
             <li>Your Mac signs it with `shortcuts sign`.</li>
           </ol>
@@ -79,9 +84,16 @@ function App() {
           {result ? (
             <div className="result">
               <p>{result.message}</p>
+              <p className="generated-name">Generated name: {result.name}</p>
               <p className={result.signed ? "badge signed" : "badge unsigned"}>
                 {result.signed ? "Signed by macOS" : "Unsigned fallback"}
               </p>
+              <a className="secondary-link" href={getDownloadUrl(result.requirements_url)} target="_blank">
+                View generated requirements
+              </a>
+              <a className="secondary-link" href={getDownloadUrl(result.context_url)} target="_blank">
+                View prompt context
+              </a>
               <a href={getDownloadUrl(result.download_url)} download>
                 Download `.shortcut`
               </a>
