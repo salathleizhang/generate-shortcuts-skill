@@ -1,0 +1,17 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# Backend
+backend/.venv/
+backend/tmp/
+__pycache__/
+*.py[cod]
+
+# Local config
+.env
+.env.*
+
+# macOS
+.DS_Store
