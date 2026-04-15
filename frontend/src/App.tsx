@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { generateShortcut, getDownloadUrl, type GenerateShortcutResponse } from "./api/shortcuts";
+import iconUrl from "./assets/icon.svg";
 
 const examplePrompt =
   "Create a Shortcut that asks for my name and then shows a friendly greeting.";
@@ -32,10 +33,7 @@ function App() {
     <main className="app-frame">
       <nav className="nav-bar" aria-label="Primary">
         <a className="brand" href="/" aria-label="ShortcutAI home">
-          <span className="brand-logo" aria-hidden="true">
-            <span />
-            <span />
-          </span>
+          <img className="brand-logo" src={iconUrl} alt="" aria-hidden="true" />
           <span>ShortcutAI</span>
         </a>
       </nav>
