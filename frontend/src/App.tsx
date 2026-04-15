@@ -40,10 +40,10 @@ function App() {
 
       <section className="workspace">
         <section className="headline">
-          <p className="eyebrow">AI Shortcuts Generator</p>
           <h1>
             say what you need, <span>get a Shortcut</span>
           </h1>
+          <p className="eyebrow">AI Shortcuts Generator</p>
         </section>
 
         <section className="stage" id="generator">
