@@ -7,6 +7,7 @@ const examplePrompt =
 function App() {
   const [prompt, setPrompt] = useState(examplePrompt);
   const [target, setTarget] = useState<"macOS" | "iOS">("macOS");
+  const [isTargetOpen, setIsTargetOpen] = useState(false);
   const [result, setResult] = useState<GenerateShortcutResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +30,16 @@ function App() {
 
   return (
     <main className="app-frame">
+      <nav className="nav-bar" aria-label="Primary">
+        <a className="brand" href="/" aria-label="ShortcutAI home">
+          <span className="brand-logo" aria-hidden="true">
+            <span />
+            <span />
+          </span>
+          <span>ShortcutAI</span>
+        </a>
+      </nav>
+
       <section className="workspace">
         <section className="headline">
           <p className="eyebrow">AI Shortcuts Generator</p>
@@ -49,56 +60,54 @@ function App() {
                 />
               </label>
 
-              <label className="target-field">
-                <span className="visually-hidden">Target</span>
-                <select value={target} onChange={(event) => setTarget(event.target.value as "macOS" | "iOS")}>
-                  <option value="macOS">macOS</option>
-                  <option value="iOS">iOS</option>
-                </select>
-              </label>
+              <div
+                className="target-field"
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) {
+                    setIsTargetOpen(false);
+                  }
+                }}
+              >
+                <button
+                  type="button"
+                  className="target-trigger"
+                  aria-expanded={isTargetOpen}
+                  aria-haspopup="listbox"
+                  onClick={() => setIsTargetOpen((current) => !current)}
+                >
+                  <span>{target}</span>
+                  <span className="chevron" aria-hidden="true" />
+                </button>
+                {isTargetOpen ? (
+                  <div className="target-menu" role="listbox" aria-label="Target">
+                    {(["macOS", "iOS"] as const).map((option) => (
+                      <button
+                        type="button"
+                        className={target === option ? "target-item active" : "target-item"}
+                        key={option}
+                        role="option"
+                        aria-selected={target === option}
+                        onClick={() => {
+                          setTarget(option);
+                          setIsTargetOpen(false);
+                        }}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
 
               <button disabled={isLoading || !prompt.trim()}>
                 {isLoading ? "Generating..." : "Generate Shortcut"}
               </button>
             </div>
           </form>
-
-          <div className="flow-strip" aria-hidden="true">
-            <span>prompt</span>
-            <i />
-            <span>plist</span>
-            <i />
-            <span>download</span>
-          </div>
         </section>
 
-        <section className="details">
-          <article>
-            <h2>plain-language input,</h2>
-            <p>no JSON wrangling.</p>
-          </article>
-          <article>
-            <h2>skill docs included,</h2>
-            <p>better action choices.</p>
-          </article>
-          <article>
-            <h2>local signing,</h2>
-            <p>ready for Shortcuts.</p>
-          </article>
-        </section>
-
-        <section className="output-panel" aria-live="polite">
-          <div className="pipeline">
-            <h2>demo pipeline</h2>
-            <ol>
-              <li>React sends the prompt to FastAPI.</li>
-              <li>Gemini drafts requirements from the skill docs.</li>
-              <li>Gemini generates Shortcut JSON.</li>
-              <li>The plist is validated and written.</li>
-              <li>Your Mac signs it with <code>shortcuts sign</code>.</li>
-            </ol>
-          </div>
-
+        {error || result ? (
+          <section className="output-panel" aria-live="polite">
           <div className="response">
             {error ? <p className="error">{error}</p> : null}
 
@@ -119,14 +128,10 @@ function App() {
                   Download `.shortcut`
                 </a>
               </div>
-            ) : (
-              <div className="waiting-state">
-                <span />
-                <p>Your generated Shortcut will land here.</p>
-              </div>
-            )}
+            ) : null}
           </div>
-        </section>
+          </section>
+        ) : null}
       </section>
     </main>
   );
