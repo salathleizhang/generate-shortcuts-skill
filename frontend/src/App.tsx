@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Show, SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/react";
+import { Show, SignInButton, SignUpButton, UserButton, useAuth, useClerk } from "@clerk/react";
 import { generateShortcut, getDownloadUrl, type GenerateShortcutResponse } from "./api/shortcuts";
 import iconUrl from "./assets/icon.svg";
 
@@ -7,7 +7,8 @@ const examplePrompt =
   "Create a Shortcut that asks for my name and then shows a friendly greeting.";
 
 function App() {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
   const [prompt, setPrompt] = useState(examplePrompt);
   const [target, setTarget] = useState<"macOS" | "iOS">("macOS");
   const [isTargetOpen, setIsTargetOpen] = useState(false);
@@ -19,6 +20,12 @@ function App() {
     event.preventDefault();
     setError(null);
     setResult(null);
+
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -64,72 +71,64 @@ function App() {
         </section>
 
         <section className="stage" id="generator">
-          <Show when="signed-out">
-            <div className="sign-in-prompt">
-              <p>Sign in to start generating Shortcuts</p>
-              <SignInButton mode="modal">
-                <button className="auth-btn auth-btn-primary auth-btn-large">Get Started</button>
-              </SignInButton>
-            </div>
-          </Show>
+          <form onSubmit={handleSubmit} className="composer">
+            <div className="search-row">
+              <label className="prompt-field">
+                <span className="visually-hidden">What should the Shortcut do?</span>
+                <input
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  placeholder="Ask for text, summarize it, save it, send it..."
+                />
+              </label>
 
-          <Show when="signed-in">
-            <form onSubmit={handleSubmit} className="composer">
-              <div className="search-row">
-                <label className="prompt-field">
-                  <span className="visually-hidden">What should the Shortcut do?</span>
-                  <input
-                    value={prompt}
-                    onChange={(event) => setPrompt(event.target.value)}
-                    placeholder="Ask for text, summarize it, save it, send it..."
-                  />
-                </label>
-
-                <div
-                  className="target-field"
-                  onBlur={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget)) {
-                      setIsTargetOpen(false);
-                    }
-                  }}
+              <div
+                className="target-field"
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) {
+                    setIsTargetOpen(false);
+                  }
+                }}
+              >
+                <button
+                  type="button"
+                  className="target-trigger"
+                  aria-expanded={isTargetOpen}
+                  aria-haspopup="listbox"
+                  onClick={() => setIsTargetOpen((current) => !current)}
                 >
-                  <button
-                    type="button"
-                    className="target-trigger"
-                    aria-expanded={isTargetOpen}
-                    aria-haspopup="listbox"
-                    onClick={() => setIsTargetOpen((current) => !current)}
-                  >
-                    <span>{target}</span>
-                    <span className="chevron" aria-hidden="true" />
-                  </button>
-                  {isTargetOpen ? (
-                    <div className="target-menu" role="listbox" aria-label="Target">
-                      {(["macOS", "iOS"] as const).map((option) => (
-                        <button
-                          type="button"
-                          className={target === option ? "target-item active" : "target-item"}
-                          key={option}
-                          role="option"
-                          aria-selected={target === option}
-                          onClick={() => {
-                            setTarget(option);
-                            setIsTargetOpen(false);
-                          }}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-
-                <button disabled={isLoading || !prompt.trim()}>
-                  {isLoading ? "Generating..." : "Generate Shortcut"}
+                  <span>{target}</span>
+                  <span className="chevron" aria-hidden="true" />
                 </button>
+                {isTargetOpen ? (
+                  <div className="target-menu" role="listbox" aria-label="Target">
+                    {(["macOS", "iOS"] as const).map((option) => (
+                      <button
+                        type="button"
+                        className={target === option ? "target-item active" : "target-item"}
+                        key={option}
+                        role="option"
+                        aria-selected={target === option}
+                        onClick={() => {
+                          setTarget(option);
+                          setIsTargetOpen(false);
+                        }}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            </form>
-          </Show>
+
+              <button disabled={isLoading || !prompt.trim()}>
+                {isLoading ? "Generating..." : "Generate Shortcut"}
+              </button>
+            </div>
+            <Show when="signed-out">
+              <p className="login-note">Sign in to generate your Shortcut.</p>
+            </Show>
+          </form>
         </section>
 
         {error || result ? (

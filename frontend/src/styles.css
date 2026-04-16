@@ -51,6 +51,11 @@ a {
   gap: 10px;
 }
 
+.nav-auth .cl-userButtonAvatarBox {
+  width: 48px;
+  height: 48px;
+}
+
 .auth-btn {
   height: auto;
   border: 1px solid #d0d0d0;
@@ -172,6 +177,13 @@ h1 span {
   padding: 0;
   background: transparent;
   box-shadow: none;
+}
+
+.login-note {
+  margin: 0;
+  color: #6b6b6b;
+  font-size: 0.98rem;
+  font-weight: 760;
 }
 
 .visually-hidden {
