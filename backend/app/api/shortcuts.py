@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 
 from app.models.shortcuts import GenerateShortcutRequest, GenerateShortcutResponse
+from app.services.auth import optional_auth
 from app.services.file_store import get_context_file, get_download_file, get_requirements_file
 from app.services.shortcut_generator import generate_shortcut
 
@@ -9,9 +12,12 @@ router = APIRouter()
 
 
 @router.post("/generate", response_model=GenerateShortcutResponse)
-def generate(request: GenerateShortcutRequest) -> GenerateShortcutResponse:
+def generate(
+    request: GenerateShortcutRequest,
+    user_id: Optional[str] = Depends(optional_auth),
+) -> GenerateShortcutResponse:
     try:
-        return generate_shortcut(request)
+        return generate_shortcut(request, author_id=user_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except RuntimeError as exc:

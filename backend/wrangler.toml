@@ -1,0 +1,15 @@
+# Wrangler configuration for Cloudflare D1 and R2
+# Used for local dev with `wrangler d1` and `wrangler r2` commands.
+# The backend itself connects via REST API / S3 API, not via Workers bindings.
+
+name = "shortcuts-generator"
+compatibility_date = "2024-12-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "shortcuts-db"
+database_id = ""  # Fill after running: wrangler d1 create shortcuts-db
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "shortcuts-files"

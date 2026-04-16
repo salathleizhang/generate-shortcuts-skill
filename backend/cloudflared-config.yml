@@ -1,0 +1,18 @@
+# Cloudflare Tunnel configuration
+# Copy this to ~/.cloudflared/config.yml after creating a tunnel.
+#
+# Setup steps:
+#   1. cloudflared tunnel login
+#   2. cloudflared tunnel create shortcuts-api
+#   3. Copy the tunnel ID and credentials file path
+#   4. Update this file with your tunnel ID
+#   5. Add DNS: cloudflared tunnel route dns shortcuts-api api.yourdomain.com
+#   6. Start: cloudflared tunnel run shortcuts-api
+
+tunnel: ""  # Fill with your tunnel ID
+credentials-file: ""  # Fill: ~/.cloudflared/<tunnel-id>.json
+
+ingress:
+  - hostname: api.yourdomain.com
+    service: http://localhost:8000
+  - service: http_status:404

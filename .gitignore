@@ -15,5 +15,9 @@ __pycache__/
 !.env.example
 !backend/.env.example
 
+# Cloudflare
+.wrangler/
+*.credentials.json
+
 # macOS
 .DS_Store

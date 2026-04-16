@@ -19,12 +19,18 @@ export type GenerateShortcutResponse = {
 
 export async function generateShortcut(
   payload: GenerateShortcutRequest,
+  token?: string | null,
 ): Promise<GenerateShortcutResponse> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_BASE_URL}/api/shortcuts/generate`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 
